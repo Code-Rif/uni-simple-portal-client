@@ -330,6 +330,7 @@ export default function Register() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                          
                             {/* Role Selection */}
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-2">
@@ -370,7 +371,7 @@ export default function Register() {
                                 placeholder="your.email@university.edu"
                                 value={formData.email}
                                 onChange={handleChange}
-                                error={errors.email}
+                                error={errors.email && errors.email !== "Registration failed. Please try again." ? errors.email : undefined}
                                 required
                                 autoComplete="email"
                             />
@@ -420,7 +421,10 @@ export default function Register() {
                                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                 </button>
                             </div>
-
+                            {/* General error message above button (not field errors) */}
+                            {errors.email && typeof errors.email === "string" && errors.email === "Registration failed. Please try again." && (
+                                <div className="text-error text-sm mb-2 text-center">{errors.email}</div>
+                            )}
                             <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
                                 {isLoading ? (
                                     <>

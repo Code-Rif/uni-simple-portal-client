@@ -21,7 +21,6 @@ export default function Login() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        // Clear error when user starts typing
         if (errors[name as keyof typeof errors]) {
             setErrors((prev) => ({ ...prev, [name]: undefined }));
         }
@@ -54,7 +53,6 @@ export default function Login() {
         setIsLoading(true);
 
         try {
-            // API call to login endpoint
             const response = await api.post("/auth/login", formData);
             // The API returns { success, message, data: { user, accessToken, refreshToken } }
             const { user, accessToken, refreshToken } = response.data.data || {};
@@ -134,6 +132,7 @@ export default function Login() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            
                             <Input
                                 label="Email Address"
                                 type="email"
@@ -141,7 +140,7 @@ export default function Login() {
                                 placeholder="your.email@university.edu"
                                 value={formData.email}
                                 onChange={handleChange}
-                                error={errors.email}
+                                error={errors.email && errors.email !== "Invalid credentials. Please try again." ? errors.email : undefined}
                                 required
                                 autoComplete="email"
                             />
@@ -181,6 +180,10 @@ export default function Login() {
                                 </Link>
                             </div>
 
+                            {/* General error message above button (not field errors) */}
+                            {errors.email && !errors.password && errors.email === "Invalid credentials. Please try again." && (
+                                <div className="text-error text-sm mb-2 text-center">{errors.email}</div>
+                            )}
                             <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
@@ -204,7 +207,7 @@ export default function Login() {
                                                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                                             ></path>
                                         </svg>
-                                        Signing in...
+                                        Signing In...
                                     </>
                                 ) : (
                                     "Sign In"
