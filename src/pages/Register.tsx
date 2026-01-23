@@ -330,7 +330,7 @@ export default function Register() {
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
-                          
+
                             {/* Role Selection */}
                             <div>
                                 <label className="block text-sm font-medium text-foreground mb-2">

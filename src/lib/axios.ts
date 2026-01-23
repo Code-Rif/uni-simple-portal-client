@@ -1,8 +1,11 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import toast from "@/lib/sonner";
+import { createBrowserHistory } from "history";
+const history = createBrowserHistory();
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -22,7 +25,7 @@ api.interceptors.request.use(
   },
 );
 
-// Response interceptor - Handle token refresh on 401
+// Response interceptor - Handle token refresh on 401 and show global alert
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -37,7 +40,11 @@ api.interceptors.response.use(
           useAuthStore.getState();
 
         if (!refreshToken) {
-          logout();
+          toast.error("Not authorized. Please login again.");
+          useAuthStore.getState().logout();
+          setTimeout(() => {
+            history.push("/login");
+          }, 1000);
           return Promise.reject(error);
         }
 
@@ -54,12 +61,23 @@ api.interceptors.response.use(
         // Retry original request with new token
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
-      } catch (refreshError) {
-        // Refresh token failed, logout user
+      } catch (err) {
+        toast.error("Not authorized. Please login again.");
         useAuthStore.getState().logout();
-        window.location.href = "/login";
-        return Promise.reject(refreshError);
+        setTimeout(() => {
+          history.push("/login");
+        }, 1000);
+        return Promise.reject(error);
       }
+    }
+
+    // Show global error for any 401
+    if (error.response?.status === 401) {
+      toast.error("Not authorized. Please login again.");
+      useAuthStore.getState().logout();
+      setTimeout(() => {
+        history.push("/login");
+      }, 1000);
     }
 
     return Promise.reject(error);

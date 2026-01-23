@@ -1,16 +1,17 @@
+import AdminFellowshipPage from "./pages/admin/Fellowship";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import FellowshipList from "./features/fellowship/FellowshipList";
 import { useAuthStore } from "./store/authStore";
+import useTokenRefresh from "@/lib/useTokenRefresh";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
-
-    console.log("Current user:", user);
-    console.log("User role:", user?.role);
+    useTokenRefresh();
 
     return (
         <BrowserRouter>
@@ -70,6 +71,18 @@ function App() {
                     }
                 />
 
+                {/* Fellowship route for students */}
+                <Route
+                    path="/fellowships"
+                    element={
+                        <ProtectedRoute allowedRoles={["student"]}>
+                            <MainLayout>
+                                <FellowshipList />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
                 {/* Placeholder protected routes */}
                 <Route
                     path="/library"
@@ -101,17 +114,24 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+
+                {/* Admin Fellowship Management */}
+                <Route
+                    path="/admin/fellowships"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <MainLayout>
+                                <AdminFellowshipPage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/fellowships"
                     element={
                         <ProtectedRoute allowedRoles={["student"]}>
                             <MainLayout>
-                                <div className="p-8 text-center">
-                                    <h1 className="text-2xl font-bold">Fellowships</h1>
-                                    <p className="text-muted-foreground mt-2">
-                                        Coming soon...
-                                    </p>
-                                </div>
+                                <FellowshipList />
                             </MainLayout>
                         </ProtectedRoute>
                     }
