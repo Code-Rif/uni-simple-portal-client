@@ -54,9 +54,15 @@ const menuItems: MenuItem[] = [
     },
     // Admin Menu Items
     {
-        title: "Manage Fellowships",
+        title: "Create Fellowship",
         icon: <Award className="w-5 h-5" />,
         path: "/admin/fellowships",
+        roles: ["admin"],
+    },
+    {
+        title: "Manage Fellowships",
+        icon: <Award className="w-5 h-5" />,
+        path: "/admin/fellowships/manage",
         roles: ["admin"],
     },
     {

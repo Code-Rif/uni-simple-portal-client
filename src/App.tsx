@@ -1,13 +1,28 @@
+import ManageUsersPage from "./pages/admin/ManageUsers";
+<Route
+    path="/admin/users"
+    element={
+        <ProtectedRoute allowedRoles={["admin"]}>
+            <MainLayout>
+                <ManageUsersPage />
+            </MainLayout>
+        </ProtectedRoute>
+    }
+/>
+
 import AdminFellowshipPage from "./pages/admin/Fellowship";
+import AdminFellowshipManagerPage from "./pages/admin/FellowshipManager";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import FellowshipList from "./features/fellowship/FellowshipList";
 import { useAuthStore } from "./store/authStore";
 import useTokenRefresh from "@/lib/useTokenRefresh";
+import SettingsPage from "./pages/Settings";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
@@ -56,16 +71,7 @@ function App() {
                                         </p>
                                     </div>
                                 )}
-                                {user?.role === "admin" && (
-                                    <div className="p-8 text-center">
-                                        <h1 className="text-2xl font-bold">
-                                            Admin Dashboard
-                                        </h1>
-                                        <p className="text-muted-foreground mt-2">
-                                            Coming soon...
-                                        </p>
-                                    </div>
-                                )}
+                                {user?.role === "admin" && <AdminDashboard />}
                             </MainLayout>
                         </ProtectedRoute>
                     }
@@ -115,13 +121,34 @@ function App() {
                     }
                 />
 
-                {/* Admin Fellowship Management */}
+                {/* Admin Fellowship Management (Create) */}
                 <Route
                     path="/admin/fellowships"
                     element={
                         <ProtectedRoute allowedRoles={["admin"]}>
                             <MainLayout>
                                 <AdminFellowshipPage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                {/* Admin Fellowship Management (Manage) */}
+                <Route
+                    path="/admin/fellowships/manage"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <MainLayout>
+                                <AdminFellowshipManagerPage />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/users"
+                    element={
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <MainLayout>
+                                <ManageUsersPage />
                             </MainLayout>
                         </ProtectedRoute>
                     }
@@ -156,12 +183,7 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <MainLayout>
-                                <div className="p-8 text-center">
-                                    <h1 className="text-2xl font-bold">Settings</h1>
-                                    <p className="text-muted-foreground mt-2">
-                                        Coming soon...
-                                    </p>
-                                </div>
+                                <SettingsPage />
                             </MainLayout>
                         </ProtectedRoute>
                     }

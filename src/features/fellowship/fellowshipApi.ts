@@ -1,3 +1,25 @@
+// Admin: Update a fellowship
+export async function updateFellowship(
+  id: string,
+  data: Partial<Fellowship>,
+): Promise<Fellowship> {
+  const res = await api.put(`/fellowships/${id}`, data);
+  return res.data.data;
+}
+
+// Admin: Delete a fellowship
+export async function deleteFellowship(id: string): Promise<void> {
+  await api.delete(`/fellowships/${id}`);
+}
+
+// Admin: Update fellowship status
+export async function updateFellowshipStatus(
+  id: string,
+  status: string,
+): Promise<Fellowship> {
+  const res = await api.patch(`/fellowships/${id}/status`, { status });
+  return res.data.data;
+}
 // Withdraw a fellowship application (student)
 export async function withdrawFellowshipApplication(id: string): Promise<void> {
   await api.delete(`${APPLICATION_API_BASE}/${id}/withdraw`);
