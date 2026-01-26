@@ -10,7 +10,6 @@ const AdminFellowshipPage: React.FC = () => {
             <div style={{ marginBottom: 40 }}>
                 <FellowshipAdminCreate />
             </div>
-            <FellowshipAdminManager />
         </div>
     );
 };
