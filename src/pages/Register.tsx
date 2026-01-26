@@ -115,7 +115,7 @@ export default function Register() {
 
         try {
             // Prepare data for API
-            const registerData: any = {
+            const registerData: Record<string, unknown> = {
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
@@ -145,14 +145,21 @@ export default function Register() {
 
             // Navigate to login after successful registration
             navigate("/login");
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Registration error:", error);
             // Show all backend validation errors in the form fields if available
-            const backendErrors = error.response?.data?.errors;
+            const backendErrors =
+                error && typeof error === "object" && "response" in error
+                    ? (error as { response?: { data?: { errors?: unknown; message?: string } } })?.response?.data?.errors
+                    : undefined;
             if (backendErrors && typeof backendErrors === "object") {
-                setErrors(backendErrors);
+                setErrors(backendErrors as Partial<Record<keyof FormData, string>>);
             } else {
-                const message = error.response?.data?.message || "Registration failed. Please try again.";
+                const backendMessage =
+                    error && typeof error === "object" && "response" in error
+                        ? (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+                        : undefined;
+                const message = backendMessage ?? (error instanceof Error ? error.message : "Registration failed. Please try again.");
                 setErrors({ email: message });
             }
         } finally {

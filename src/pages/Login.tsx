@@ -53,6 +53,33 @@ export default function Login() {
         setIsLoading(true);
 
         try {
+            // TEMPORARY: Mock login for testing (remove when backend is ready)
+            if (!import.meta.env.VITE_API_BASE_URL) {
+                // Mock user data
+                const mockUser = {
+                    _id: "mock-user-123",
+                    name: "John Doe",
+                    email: formData.email,
+                    role: "student" as const,
+                    isActive: true,
+                    studentId: "STU001",
+                    department: "Computer Science",
+                    semester: 5,
+                    cgpa: 3.8,
+                };
+                
+                const mockAccessToken = "mock-access-token-123";
+                const mockRefreshToken = "mock-refresh-token-123";
+                
+                // Save to auth store
+                login(mockUser, mockAccessToken, mockRefreshToken);
+                
+                // Navigate to dashboard after successful login
+                navigate("/dashboard");
+                setIsLoading(false);
+                return;
+            }
+            
             const response = await api.post("/auth/login", formData);
             // The API returns { success, message, data: { user, accessToken, refreshToken } }
             const { user, accessToken, refreshToken } = response.data.data || {};
@@ -66,9 +93,13 @@ export default function Login() {
 
             // Navigate to dashboard after successful login
             navigate("/dashboard");
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Login error:", error);
-            const message = error.response?.data?.message || "Invalid credentials. Please try again.";
+            const backendMessage =
+                error && typeof error === "object" && "response" in error
+                    ? (error as { response?: { data?: { message?: string } } })?.response?.data?.message
+                    : undefined;
+            const message = backendMessage ?? (error instanceof Error ? error.message : "Invalid credentials. Please try again.");
             setErrors({ email: message });
         } finally {
             setIsLoading(false);

@@ -29,15 +29,15 @@ const menuItems: MenuItem[] = [
     },
     // Student Menu Items
     {
-        title: "Library",
+        title: "Library Catalogue",
         icon: <BookOpen className="w-5 h-5" />,
-        path: "/library",
+        path: "/library/books",
         roles: ["student", "teacher"],
     },
     {
         title: "My Library Card",
         icon: <CreditCard className="w-5 h-5" />,
-        path: "/library-card",
+        path: "/library/my-card",
         roles: ["student"],
     },
     {
@@ -63,14 +63,14 @@ const menuItems: MenuItem[] = [
     {
         title: "Manage Books",
         icon: <BookMarked className="w-5 h-5" />,
-        path: "/librarian/books",
-        roles: ["librarian"],
+        path: "/library/manage-books",
+        roles: ["librarian", "admin"],
     },
     {
         title: "Library Cards",
         icon: <CreditCard className="w-5 h-5" />,
-        path: "/librarian/cards",
-        roles: ["librarian"],
+        path: "/library/manage-cards",
+        roles: ["librarian", "admin"],
     },
     // Common Items
     {

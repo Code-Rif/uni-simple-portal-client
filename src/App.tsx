@@ -5,15 +5,18 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import { useAuthStore } from "./store/authStore";
+// Library Module Imports
+import BookList from "./features/library/BookList";
+import BookDetail from "./features/library/BookDetail";
+import MyLibraryCard from "./features/library/MyLibraryCard";
+import BookManagement from "./features/library/BookManagement";
+import LibraryCardManagement from "./features/library/LibraryCardManagement";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
 
-    console.log("Current user:", user);
-    console.log("User role:", user?.role);
-
     return (
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <Routes>
                 <Route
                     path="/"
@@ -71,36 +74,72 @@ function App() {
                 />
 
                 {/* Placeholder protected routes */}
+                
+                {/* Library Routes - Student Access */}
                 <Route
-                    path="/library"
+                    path="/library/books"
                     element={
-                        <ProtectedRoute allowedRoles={["student", "teacher"]}>
+                        <ProtectedRoute allowedRoles={["student", "teacher", "librarian", "admin"]}>
                             <MainLayout>
-                                <div className="p-8 text-center">
-                                    <h1 className="text-2xl font-bold">Library Catalog</h1>
-                                    <p className="text-muted-foreground mt-2">
-                                        Coming soon...
-                                    </p>
-                                </div>
+                                <BookList />
                             </MainLayout>
                         </ProtectedRoute>
                     }
                 />
                 <Route
-                    path="/library-card"
+                    path="/library/books/:bookId"
+                    element={
+                        <ProtectedRoute allowedRoles={["student", "teacher", "librarian", "admin"]}>
+                            <MainLayout>
+                                <BookDetail />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/library/my-card"
                     element={
                         <ProtectedRoute allowedRoles={["student"]}>
                             <MainLayout>
-                                <div className="p-8 text-center">
-                                    <h1 className="text-2xl font-bold">My Library Card</h1>
-                                    <p className="text-muted-foreground mt-2">
-                                        Coming soon...
-                                    </p>
-                                </div>
+                                <MyLibraryCard />
                             </MainLayout>
                         </ProtectedRoute>
                     }
                 />
+
+                {/* Library Routes - Librarian/Admin Access */}
+                <Route
+                    path="/library/manage-books"
+                    element={
+                        <ProtectedRoute allowedRoles={["librarian", "admin"]}>
+                            <MainLayout>
+                                <BookManagement />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/library/manage-cards"
+                    element={
+                        <ProtectedRoute allowedRoles={["librarian", "admin"]}>
+                            <MainLayout>
+                                <LibraryCardManagement />
+                            </MainLayout>
+                        </ProtectedRoute>
+                    }
+                />
+
+                {/* Legacy Library Routes - Redirect to new paths */}
+                <Route
+                    path="/library"
+                    element={<Navigate to="/library/books" replace />}
+                />
+                <Route
+                    path="/library-card"
+                    element={<Navigate to="/library/my-card" replace />}
+                />
+                
+                {/* Fellowship Routes */}
                 <Route
                     path="/fellowships"
                     element={

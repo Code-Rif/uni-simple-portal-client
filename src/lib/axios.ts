@@ -41,8 +41,8 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        // Call refresh token endpoint
-        const response = await axios.post("/api/auth/refresh-token", {
+        // Call refresh token endpoint using the configured `api` instance
+        const response = await api.post("/auth/refresh-token", {
           refreshToken,
         });
 

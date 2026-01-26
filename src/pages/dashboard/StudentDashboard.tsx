@@ -9,7 +9,6 @@ import {
     CreditCard,
     TrendingUp,
     Clock,
-    CheckCircle,
     ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
