@@ -19,9 +19,17 @@ const TeacherDashboard = () => {
 						Go to Result Upload
 					</button>
 				</div>
+<<<<<<< HEAD
+=======
+				{/* Add more teacher dashboard cards here as needed */}
+>>>>>>> 0175a316361f2d0f3299d13e08e55ea45155c7d4
 			</div>
 		</div>
 	);
 };
 
+<<<<<<< HEAD
 export default TeacherDashboard;
+=======
+export default TeacherDashboard;
+>>>>>>> 0175a316361f2d0f3299d13e08e55ea45155c7d4

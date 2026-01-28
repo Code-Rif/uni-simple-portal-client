@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+// TODO: Implement TeacherResultEntry component for teachers to add student results in a tabular form (select session, semester, enter results).import React, { useState, useEffect } from "react";
+
+>>>>>>> 0175a316361f2d0f3299d13e08e55ea45155c7d4
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { fetchStudents, addResults } from "./resultApi";

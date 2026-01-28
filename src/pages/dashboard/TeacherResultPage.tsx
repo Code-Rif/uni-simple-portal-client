@@ -9,4 +9,8 @@ const TeacherResultPage = () => {
   );
 };
 
+<<<<<<< HEAD
 export default TeacherResultPage;
+=======
+export default TeacherResultPage;
+>>>>>>> 0175a316361f2d0f3299d13e08e55ea45155c7d4
