@@ -54,6 +54,18 @@ const menuItems: MenuItem[] = [
     },
     // Admin Menu Items
     {
+        title: "Create Fellowship",
+        icon: <Award className="w-5 h-5" />,
+        path: "/admin/fellowships",
+        roles: ["admin"],
+    },
+    {
+        title: "Manage Fellowships",
+        icon: <Award className="w-5 h-5" />,
+        path: "/admin/fellowships/manage",
+        roles: ["admin"],
+    },
+    {
         title: "Manage Users",
         icon: <Users className="w-5 h-5" />,
         path: "/admin/users",
@@ -94,8 +106,8 @@ export default function Sidebar() {
             {/* Logo/Header */}
             <div className="p-6 border-b border-border">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                        <GraduationCap className="w-6 h-6 text-primary-foreground" />
+                    <div className="w-16 h-16 rounded-lg flex items-center justify-center overflow-hidden bg-white">
+                        <img src="/uni-portal-removebg.png" alt="University Logo" className="w-16 h-16 object-contain" />
                     </div>
                     <div>
                         <h1 className="text-lg font-bold text-foreground">University</h1>

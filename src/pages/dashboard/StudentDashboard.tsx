@@ -1,3 +1,7 @@
+import toast from "@/lib/sonner";
+
+
+// -------------------- IMPORTS --------------------
 import { useAuthStore } from "@/store/authStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,74 +16,97 @@ import {
     ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { fetchMyApplications, withdrawFellowshipApplication } from "@/features/fellowship/fellowshipApi";
+import { FellowshipApplication } from "@/features/fellowship/fellowshipTypes";
 
+// -------------------- HELPER FUNCTIONS --------------------
+const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
+};
+
+const getStatusBadge = (status: string) => {
+    switch (status) {
+        case "approved":
+            return <Badge variant="success">Approved</Badge>;
+        case "under-review":
+            return <Badge variant="warning">Under Review</Badge>;
+        case "rejected":
+            return <Badge variant="error">Rejected</Badge>;
+        case "withdrawn":
+            return <Badge variant="secondary">Withdrawn</Badge>;
+        case "submitted":
+            return <Badge variant="info">Submitted</Badge>;
+        default:
+            return <Badge>{status}</Badge>;
+    }
+};
+
+// -------------------- MAIN COMPONENT --------------------
 export default function StudentDashboard() {
     const { user } = useAuthStore();
+    const [applications, setApplications] = useState<FellowshipApplication[]>([]);
+    const [loadingApps, setLoadingApps] = useState(false);
+    const [errorApps, setErrorApps] = useState<string | null>(null);
+    const [withdrawing, setWithdrawing] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
 
-    // Mock data - will be replaced with actual API calls
+    // Stats for highlight cards (books, fellowships, email, cgpa)
     const stats = {
-        booksIssued: 3,
-        fellowshipsApplied: 2,
-        emailBenefits: 12,
+        booksIssued: 3, // TODO: Replace with real API data
+        fellowshipsApplied: applications.length,
+        emailBenefits: 12, // TODO: Replace with real API data
         cgpa: user?.cgpa || 0,
+        submitted: applications.filter(app => app.status === "submitted").length,
+        underReview: applications.filter(app => app.status === "under-review").length,
+        approved: applications.filter(app => app.status === "approved").length,
+        rejected: applications.filter(app => app.status === "rejected").length,
+        withdrawn: applications.filter(app => app.status === "withdrawn").length,
     };
 
+    // Dummy recent books data (replace with API data)
     const recentBooks = [
         {
             id: "1",
             title: "Introduction to Algorithms",
-            author: "Thomas H. Cormen",
-            dueDate: "2026-01-28",
-            status: "borrowed",
+            author: "Cormen, Leiserson, Rivest, Stein",
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
         {
             id: "2",
             title: "Clean Code",
             author: "Robert C. Martin",
-            dueDate: "2026-02-05",
-            status: "borrowed",
-        },
-        {
-            id: "3",
-            title: "Design Patterns",
-            author: "Gang of Four",
-            dueDate: "2026-02-10",
-            status: "borrowed",
+            dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         },
     ];
 
-    const fellowshipUpdates = [
-        {
-            id: "1",
-            title: "Merit-Based Scholarship 2026",
-            status: "under-review",
-            appliedDate: "2026-01-15",
-        },
-        {
-            id: "2",
-            title: "Research Fellowship",
-            status: "approved",
-            appliedDate: "2025-12-20",
-        },
-    ];
+    // Fetch student's fellowship applications
+    useEffect(() => {
+        setLoadingApps(true);
+        fetchMyApplications()
+            .then((data) => {
+                setApplications(data.applications);
+                setErrorApps(null);
+            })
+            .catch((err) => {
+                setErrorApps(err?.response?.data?.message || "Failed to fetch applications");
+            })
+            .finally(() => setLoadingApps(false));
+    }, [refreshKey]);
 
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return "Good Morning";
-        if (hour < 18) return "Good Afternoon";
-        return "Good Evening";
-    };
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case "approved":
-                return <Badge variant="success">Approved</Badge>;
-            case "under-review":
-                return <Badge variant="warning">Under Review</Badge>;
-            case "rejected":
-                return <Badge variant="error">Rejected</Badge>;
-            default:
-                return <Badge>{status}</Badge>;
+    const handleWithdraw = async (id: string) => {
+        setWithdrawing(id);
+        try {
+            await withdrawFellowshipApplication(id);
+            toast.success("Application withdrawn successfully.");
+            setRefreshKey((k) => k + 1);
+        } catch (err: unknown) {
+            toast.error(err?.response?.data?.message || "Failed to withdraw application");
+        } finally {
+            setWithdrawing(null);
         }
     };
 
@@ -88,12 +115,13 @@ export default function StudentDashboard() {
             {/* Greeting Section */}
             <div>
                 <h1 className="text-3xl font-bold text-foreground">
-                    {getGreeting()}, {user?.name.split(" ")[0]}! 👋
+                    {getGreeting()}, {user?.name?.split(" ")[0]}! 👋
                 </h1>
                 <p className="text-muted-foreground mt-1">
                     Welcome back to your academic dashboard
                 </p>
             </div>
+
 
             {/* Highlight Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -125,13 +153,13 @@ export default function StudentDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Fellowship Card */}
+                {/* Fellowship Card - with status breakdown */}
                 <Card className="hover:shadow-card-hover transition-shadow cursor-pointer">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">
-                                    Fellowships
+                                    Fellowships Applied
                                 </p>
                                 <p className="text-2xl font-bold text-foreground mt-1">
                                     {stats.fellowshipsApplied}
@@ -140,6 +168,13 @@ export default function StudentDashboard() {
                             <div className="w-12 h-12 bg-warning-light rounded-lg flex items-center justify-center">
                                 <Award className="w-6 h-6 text-warning-dark" />
                             </div>
+                        </div>
+                        <div className="mt-4 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                            <span>Submitted: <span className="font-semibold text-foreground">{stats.submitted}</span></span>
+                            <span>Under Review: <span className="font-semibold text-foreground">{stats.underReview}</span></span>
+                            <span>Approved: <span className="font-semibold text-success">{stats.approved}</span></span>
+                            <span>Rejected: <span className="font-semibold text-error">{stats.rejected}</span></span>
+                            <span>Withdrawn: <span className="font-semibold text-muted-foreground">{stats.withdrawn}</span></span>
                         </div>
                         <div className="mt-4">
                             <Link
@@ -253,42 +288,78 @@ export default function StudentDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Fellowship Updates */}
-                <Card>
+                {/* Fellowship Applications - Improved UI/UX */}
+                <Card className="shadow-lg">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Award className="w-5 h-5 text-primary" />
-                            Fellowship Applications
+                        <CardTitle className="flex items-center gap-2 text-primary">
+                            <Award className="w-5 h-5" />
+                            My Fellowship Applications
                         </CardTitle>
                         <CardDescription>
-                            Track your fellowship and scholarship applications
+                            Track your progress, status, and feedback for each application
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {fellowshipUpdates.map((fellowship) => (
-                                <div
-                                    key={fellowship.id}
-                                    className="flex items-start justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
-                                >
-                                    <div className="flex-1">
-                                        <h4 className="font-medium text-sm text-foreground">
-                                            {fellowship.title}
-                                        </h4>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            Applied on{" "}
-                                            {new Date(fellowship.appliedDate).toLocaleDateString()}
-                                        </p>
-                                    </div>
-                                    <div className="ml-2">
-                                        {getStatusBadge(fellowship.status)}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="mt-4 pt-4 border-t border-border">
+                        {loadingApps ? (
+                            <div className="flex items-center justify-center py-8">
+                                <span className="animate-spin mr-2">⏳</span> Loading applications...
+                            </div>
+                        ) : errorApps ? (
+                            <div className="text-error text-center py-4">{errorApps}</div>
+                        ) : (
+                            <div className="divide-y divide-border">
+                                {applications.length === 0 ? (
+                                    <div className="text-center py-8 text-muted-foreground">No applications found.</div>
+                                ) : (
+                                    applications.map((app) => (
+                                        <div
+                                            key={app._id}
+                                            className="flex flex-col md:flex-row items-start md:items-center justify-between py-4 gap-4 hover:bg-muted/70 transition-colors rounded-lg"
+                                        >
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <h4 className="font-semibold text-base text-foreground">
+                                                        {typeof app.fellowship === "string"
+                                                            ? app.fellowship
+                                                            : app.fellowship.name}
+                                                    </h4>
+                                                    {getStatusBadge(app.status)}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground mt-1">
+                                                    Applied on <span className="font-medium">{app.submittedAt ? new Date(app.submittedAt).toLocaleDateString() : "N/A"}</span>
+                                                </div>
+                                                {app.status === "rejected" && app.rejectionReason && (
+                                                    <div className="text-xs text-error mt-2 bg-error/10 rounded px-2 py-1">
+                                                        <strong>Reason:</strong> {app.rejectionReason}
+                                                    </div>
+                                                )}
+                                                {app.status === "approved" && app.adminRemarks && (
+                                                    <div className="text-xs text-success mt-2 bg-success/10 rounded px-2 py-1">
+                                                        <strong>Remarks:</strong> {app.adminRemarks}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col items-end gap-2 min-w-[120px]">
+                                                {app.status === "submitted" && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="destructive"
+                                                        disabled={withdrawing === app._id}
+                                                        onClick={() => handleWithdraw(app._id)}
+                                                        className="w-full"
+                                                    >
+                                                        {withdrawing === app._id ? "Withdrawing..." : "Withdraw"}
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                        <div className="mt-6 pt-4 border-t border-border text-center">
                             <Link to="/fellowships">
-                                <Button variant="outline" className="w-full">
+                                <Button variant="outline" className="w-full md:w-auto">
                                     View All Fellowships
                                 </Button>
                             </Link>
