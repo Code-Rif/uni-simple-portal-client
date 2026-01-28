@@ -5,15 +5,18 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
 import StudentDashboard from "./pages/dashboard/StudentDashboard";
 import { useAuthStore } from "./store/authStore";
+import useTokenRefresh from "@/lib/useTokenRefresh";
 // Library Module Imports
 import BookList from "./features/library/BookList";
 import BookDetail from "./features/library/BookDetail";
 import MyLibraryCard from "./features/library/MyLibraryCard";
 import BookManagement from "./features/library/BookManagement";
 import LibraryCardManagement from "./features/library/LibraryCardManagement";
+import SettingsPage from "./pages/Settings";
 
 function App() {
     const { isAuthenticated, user } = useAuthStore();
+    useTokenRefresh();
 
     return (
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
