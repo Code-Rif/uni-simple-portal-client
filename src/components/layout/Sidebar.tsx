@@ -88,7 +88,7 @@ const menuItems: MenuItem[] = [
     {
         title: "Settings",
         icon: <Settings className="w-5 h-5" />,
-        path: "/settings",
+        path: "/profile",
         roles: ["student", "teacher", "librarian", "admin"],
     },
 ];

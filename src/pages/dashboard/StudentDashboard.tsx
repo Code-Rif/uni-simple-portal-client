@@ -1,7 +1,3 @@
-import toast from "@/lib/sonner";
-
-
-// -------------------- IMPORTS --------------------
 import { useAuthStore } from "@/store/authStore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,11 +10,14 @@ import {
     TrendingUp,
     Clock,
     ArrowRight,
+    GraduationCap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { fetchMyApplications, withdrawFellowshipApplication } from "@/features/fellowship/fellowshipApi";
 import { FellowshipApplication } from "@/features/fellowship/fellowshipTypes";
+import StudentResultView from "@/features/result/StudentResultView";
+import toast from "@/lib/sonner";
 
 // -------------------- HELPER FUNCTIONS --------------------
 const getGreeting = () => {
@@ -54,7 +53,7 @@ export default function StudentDashboard() {
     const [withdrawing, setWithdrawing] = useState<string | null>(null);
     const [refreshKey, setRefreshKey] = useState(0);
 
-    // Stats for highlight cards (books, fellowships, email, cgpa)
+    // Stats for highlight cards
     const stats = {
         booksIssued: 3, // TODO: Replace with real API data
         fellowshipsApplied: applications.length,
@@ -103,7 +102,7 @@ export default function StudentDashboard() {
             await withdrawFellowshipApplication(id);
             toast.success("Application withdrawn successfully.");
             setRefreshKey((k) => k + 1);
-        } catch (err: unknown) {
+        } catch (err: any) {
             toast.error(err?.response?.data?.message || "Failed to withdraw application");
         } finally {
             setWithdrawing(null);
@@ -121,7 +120,6 @@ export default function StudentDashboard() {
                     Welcome back to your academic dashboard
                 </p>
             </div>
-
 
             {/* Highlight Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -153,7 +151,7 @@ export default function StudentDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Fellowship Card - with status breakdown */}
+                {/* Fellowship Card */}
                 <Card className="hover:shadow-card-hover transition-shadow cursor-pointer">
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between">
@@ -241,9 +239,10 @@ export default function StudentDashboard() {
                 </Card>
             </div>
 
+            {/* Two Column Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Recently Borrowed Books */}
-                <Card>
+                <Card className="hover:shadow-card-hover transition-shadow">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <BookOpen className="w-5 h-5 text-primary" />
@@ -288,11 +287,11 @@ export default function StudentDashboard() {
                     </CardContent>
                 </Card>
 
-                {/* Fellowship Applications - Improved UI/UX */}
-                <Card className="shadow-lg">
+                {/* Fellowship Applications */}
+                <Card className="hover:shadow-card-hover transition-shadow">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-primary">
-                            <Award className="w-5 h-5" />
+                        <CardTitle className="flex items-center gap-2">
+                            <Award className="w-5 h-5 text-primary" />
                             My Fellowship Applications
                         </CardTitle>
                         <CardDescription>
@@ -369,7 +368,7 @@ export default function StudentDashboard() {
             </div>
 
             {/* Quick Actions */}
-            <Card>
+            <Card className="hover:shadow-card-hover transition-shadow">
                 <CardHeader>
                     <CardTitle>Quick Actions</CardTitle>
                     <CardDescription>
@@ -397,6 +396,22 @@ export default function StudentDashboard() {
                             </Button>
                         </Link>
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Student Results Section - LAST SECTION */}
+            <Card className="hover:shadow-card-hover transition-shadow">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <GraduationCap className="w-5 h-5 text-primary" />
+                        My Results
+                    </CardTitle>
+                    <CardDescription>
+                        View your academic results by subject and semester
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <StudentResultView />
                 </CardContent>
             </Card>
         </div>
