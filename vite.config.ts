@@ -12,13 +12,11 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    strictPort: true, // Exit if port is already in use
-    host: true, // Listen on all addresses
-    proxy: {
-      "/api": {
-        target: "http://localhost:5000",
-        changeOrigin: true,
-      },
-    },
+    // proxy: {
+    //   "/api": {
+    //     target: "http://localhost:5000",
+    //     changeOrigin: true,
+    //   },
+    // },
   },
 });

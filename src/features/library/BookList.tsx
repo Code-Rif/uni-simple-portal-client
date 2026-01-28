@@ -357,7 +357,7 @@ export default function BookList() {
     if (book.status === "available" && book.availableCopies > 0) {
       return <Badge variant="success">Available ({book.availableCopies})</Badge>;
     } else if (book.status === "out-of-stock" || book.availableCopies === 0) {
-      return <Badge variant="destructive">Out of Stock</Badge>;
+      return <Badge variant="error">Out of Stock</Badge>;
     } else {
       return <Badge variant="warning">Limited ({book.availableCopies})</Badge>;
     }
