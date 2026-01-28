@@ -79,7 +79,7 @@ export default function Navbar() {
                                         <button
                                             onClick={() => {
                                                 setShowProfileMenu(false);
-                                                window.location.href = "/settings";
+                                                window.location.href = "/profile";
                                             }}
                                             className="w-full px-4 py-2 text-left text-sm text-foreground hover:bg-muted transition-colors"
                                         >

@@ -1,5 +1,5 @@
 
-import { Award, Users, Settings } from "lucide-react";
+import { Award, Users, Settings as ProfileIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -60,11 +60,11 @@ export default function AdminDashboard() {
                         </span>
                     </CardContent>
                 </Card>
-                <Link to="/settings" className="block">
+                <Link to="/profile" className="block">
                     <Card className="hover:shadow-card-hover transition-shadow cursor-pointer h-full">
                         <CardContent className="flex flex-col items-center justify-center p-6">
-                            <Settings className="w-10 h-10 text-info mb-2" />
-                            <span className="font-semibold text-lg">Settings</span>
+                            <ProfileIcon className="w-10 h-10 text-info mb-2" />
+                            <span className="font-semibold text-lg">Profile</span>
                         </CardContent>
                     </Card>
                 </Link>

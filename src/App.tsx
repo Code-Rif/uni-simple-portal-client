@@ -1,250 +1,265 @@
-import ManageUsersPage from "./pages/admin/ManageUsers";
-<Route
-    path="/admin/users"
-    element={
-        <ProtectedRoute allowedRoles={["admin"]}>
-            <MainLayout>
-                <ManageUsersPage />
-            </MainLayout>
-        </ProtectedRoute>
-    }
-/>
-
-import AdminFellowshipPage from "./pages/admin/Fellowship";
-import AdminFellowshipManagerPage from "./pages/admin/FellowshipManager";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ProtectedRoute from "./components/ProtectedRoute";
-import MainLayout from "./components/layout/MainLayout";
-import StudentDashboard from "./pages/dashboard/StudentDashboard";
-import AdminDashboard from "./pages/dashboard/AdminDashboard";
-import FellowshipList from "./features/fellowship/FellowshipList";
+import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
 import useTokenRefresh from "@/lib/useTokenRefresh";
-import SettingsPage from "./pages/Settings";
+
+// Layouts
+import MainLayout from "./components/layout/MainLayout";
+
+// Components
+import ProtectedRoute from "./components/ProtectedRoute";
+
+// Auth Pages
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+
+// Dashboard Pages
+import StudentDashboard from "./pages/dashboard/StudentDashboard";
+import TeacherDashboard from "./pages/dashboard/TeacherDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import TeacherResultPage from "./pages/dashboard/TeacherResultPage";
+
+// Admin Pages
+import AdminFellowshipPage from "./pages/admin/Fellowship";
+import AdminFellowshipManagerPage from "./pages/admin/FellowshipManager";
+import ManageUsersPage from "./pages/admin/ManageUsers";
+
+// Feature Pages
+import FellowshipList from "./features/fellowship/FellowshipList";
+import ProfilePage from "./pages/Profile";
+
+// Library Feature Pages
+import BookList from "./features/library/BookList";
+import BookDetail from "./features/library/BookDetail";
+import MyLibraryCard from "./features/library/MyLibraryCard";
+import BookManagement from "./features/library/BookManagement";
+import LibraryCardManagement from "./features/library/LibraryCardManagement";
 
 function App() {
-    const { isAuthenticated, user } = useAuthStore();
-    useTokenRefresh();
+  const { isAuthenticated, user } = useAuthStore();
+  useTokenRefresh();
 
-    return (
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        isAuthenticated ? (
-                            <Navigate to="/dashboard" replace />
-                        ) : (
-                            <Navigate to="/login" replace />
-                        )
-                    }
-                />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+  return (
+    <BrowserRouter>
+      <Routes>
 
-                {/* Protected Routes */}
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout>
-                                {user?.role === "student" && <StudentDashboard />}
-                                {user?.role === "teacher" && (
-                                    <div className="p-8 text-center">
-                                        <h1 className="text-2xl font-bold">
-                                            Teacher Dashboard
-                                        </h1>
-                                        <p className="text-muted-foreground mt-2">
-                                            Coming soon...
-                                        </p>
-                                    </div>
-                                )}
-                                {user?.role === "librarian" && (
-                                    <div className="p-8 text-center">
-                                        <h1 className="text-2xl font-bold">
-                                            Librarian Dashboard
-                                        </h1>
-                                        <p className="text-muted-foreground mt-2">
-                                            Coming soon...
-                                        </p>
-                                    </div>
-                                )}
-                                {user?.role === "admin" && <AdminDashboard />}
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        {/* Root Redirect */}
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
-                {/* Fellowship route for students */}
-                <Route
-                    path="/fellowships"
-                    element={
-                        <ProtectedRoute allowedRoles={["student"]}>
-                            <MainLayout>
-                                <FellowshipList />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-                {/* Placeholder protected routes */}
-                
-                {/* Library Routes - Student Access */}
-                <Route
-                    path="/library/books"
-                    element={
-                        <ProtectedRoute allowedRoles={["student", "teacher", "librarian", "admin"]}>
-                            <MainLayout>
-                                <BookList />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/library/books/:bookId"
-                    element={
-                        <ProtectedRoute allowedRoles={["student", "teacher", "librarian", "admin"]}>
-                            <MainLayout>
-                                <BookDetail />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/library/my-card"
-                    element={
-                        <ProtectedRoute allowedRoles={["student"]}>
-                            <MainLayout>
-                                <MyLibraryCard />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        {/* Dashboard */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                {user?.role === "student" && <StudentDashboard />}
+                {user?.role === "teacher" && <TeacherDashboard />}
+                {user?.role === "admin" && <AdminDashboard />}
+                {user?.role === "librarian" && (
+                  <div className="p-8 text-center">
+                    <h1 className="text-2xl font-bold">Librarian Dashboard</h1>
+                    <p className="text-muted-foreground mt-2">Coming soon...</p>
+                  </div>
+                )}
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
 
-                {/* Library Routes - Librarian/Admin Access */}
-                <Route
-                    path="/library/manage-books"
-                    element={
-                        <ProtectedRoute allowedRoles={["librarian", "admin"]}>
-                            <MainLayout>
-                                <BookManagement />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        {/* Student Routes */}
+        <Route
+          path="/fellowships"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <MainLayout>
+                <FellowshipList />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
 
-                {/* Admin Fellowship Management (Create) */}
-                <Route
-                    path="/admin/fellowships"
-                    element={
-                        <ProtectedRoute allowedRoles={["admin"]}>
-                            <MainLayout>
-                                <AdminFellowshipPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                {/* Admin Fellowship Management (Manage) */}
-                <Route
-                    path="/admin/fellowships/manage"
-                    element={
-                        <ProtectedRoute allowedRoles={["admin"]}>
-                            <MainLayout>
-                                <AdminFellowshipManagerPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/admin/users"
-                    element={
-                        <ProtectedRoute allowedRoles={["admin"]}>
-                            <MainLayout>
-                                <ManageUsersPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/library/manage-cards"
-                    element={
-                        <ProtectedRoute allowedRoles={["librarian", "admin"]}>
-                            <MainLayout>
-                                <LibraryCardManagement />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        <Route
+          path="/benefits"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <MainLayout>
+                <div className="p-8 text-center">
+                  <h1 className="text-2xl font-bold">Email Benefits</h1>
+                  <p className="text-muted-foreground mt-2">Coming soon...</p>
+                </div>
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
 
-                {/* Legacy Library Routes - Redirect to new paths */}
-                <Route
-                    path="/library"
-                    element={<Navigate to="/library/books" replace />}
-                />
-                <Route
-                    path="/library-card"
-                    element={<Navigate to="/library/my-card" replace />}
-                />
-                
-                {/* Fellowship Routes */}
-                <Route
-                    path="/fellowships"
-                    element={
-                        <ProtectedRoute allowedRoles={["student"]}>
-                            <MainLayout>
-                                <FellowshipList />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/benefits"
-                    element={
-                        <ProtectedRoute allowedRoles={["student"]}>
-                            <MainLayout>
-                                <div className="p-8 text-center">
-                                    <h1 className="text-2xl font-bold">Email Benefits</h1>
-                                    <p className="text-muted-foreground mt-2">
-                                        Coming soon...
-                                    </p>
-                                </div>
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/settings"
-                    element={
-                        <ProtectedRoute>
-                            <MainLayout>
-                                <SettingsPage />
-                            </MainLayout>
-                        </ProtectedRoute>
-                    }
-                />
+        {/* Library Routes - Student / Teacher */}
+        <Route
+          path="/library/books"
+          element={
+            <ProtectedRoute allowedRoles={["student", "teacher", "librarian", "admin"]}>
+              <MainLayout>
+                <BookList />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
 
-                {/* Unauthorized page */}
-                <Route
-                    path="/unauthorized"
-                    element={
-                        <div className="min-h-screen flex items-center justify-center bg-background">
-                            <div className="text-center">
-                                <h1 className="text-4xl font-bold text-error">403</h1>
-                                <p className="text-muted-foreground mt-2">
-                                    Unauthorized Access
-                                </p>
-                                <p className="text-sm text-muted-foreground mt-1">
-                                    You don't have permission to access this page.
-                                </p>
-                            </div>
-                        </div>
-                    }
-                />
-            </Routes>
-        </BrowserRouter>
-    );
+        <Route
+          path="/library/books/:bookId"
+          element={
+            <ProtectedRoute allowedRoles={["student", "teacher", "librarian", "admin"]}>
+              <MainLayout>
+                <BookDetail />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/library/my-card"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <MainLayout>
+                <MyLibraryCard />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Library Routes - Librarian / Admin */}
+        <Route
+          path="/library/manage-books"
+          element={
+            <ProtectedRoute allowedRoles={["librarian", "admin"]}>
+              <MainLayout>
+                <BookManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/library/manage-cards"
+          element={
+            <ProtectedRoute allowedRoles={["librarian", "admin"]}>
+              <MainLayout>
+                <LibraryCardManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Legacy Redirects */}
+        <Route path="/library" element={<Navigate to="/library/books" replace />} />
+        <Route path="/library-card" element={<Navigate to="/library/my-card" replace />} />
+
+        {/* Teacher Routes */}
+        <Route
+          path="/teacher/results"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <MainLayout>
+                <TeacherResultPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Routes */}
+        <Route
+          path="/admin/fellowships"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <MainLayout>
+                <AdminFellowshipPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/fellowships/manage"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <MainLayout>
+                <AdminFellowshipManagerPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/users"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <MainLayout>
+                <ManageUsersPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Shared */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ProfilePage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Error Pages */}
+        <Route
+          path="/unauthorized"
+          element={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+              <div className="text-center">
+                <h1 className="text-4xl font-bold text-error">403</h1>
+                <p className="text-muted-foreground mt-2">Unauthorized Access</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  You don't have permission to access this page.
+                </p>
+              </div>
+            </div>
+          }
+        />
+
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+              <div className="text-center">
+                <h1 className="text-4xl font-bold">404</h1>
+                <p className="text-muted-foreground m-4">Page Not Found</p>
+                <Link
+                  to="/"
+                  className="btn btn-primary bg-blue-500 hover:bg-blue-700 px-5 py-2 rounded-md text-white mt-2"
+                >
+                  Back to Home
+                </Link>
+              </div>
+            </div>
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
